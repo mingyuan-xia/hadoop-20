@@ -44,6 +44,7 @@ import org.apache.hadoop.fs.Seekable;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.hdfs.DistributedRaidFileSystem;
 import org.apache.hadoop.hdfs.DFSClient.DFSDataInputStream;
 import org.apache.hadoop.hdfs.DistributedRaidFileSystem;
 import org.apache.hadoop.hdfs.protocol.LocatedBlock;

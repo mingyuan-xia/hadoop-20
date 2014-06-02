@@ -43,6 +43,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.raid.StripeReader.LocationPair;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.DFSClient.DFSDataInputStream;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.io.Text;
@@ -452,6 +453,7 @@ public class Decoder {
       FileSystem parityFs, boolean stripeVerified, StripeInfo si) 
           throws StripeMismatchException {
     //setting remoteRackFlag for each of the input streams and verify the stripe
+    parityFs = DFSUtil.convertToDFS(parityFs);
     for (int i = 0 ; i < codec.parityLength + codec.stripeLength ; i++) {
       if (parallelReader.streams[i] instanceof DFSDataInputStream) {
         DFSDataInputStream stream =
@@ -508,6 +510,7 @@ public class Decoder {
           throws IOException {
     
     Progressable reporter = context;
+    srcFs = DFSUtil.convertToDFS(srcFs);
     
     if (reporter == null) {
       reporter = RaidUtils.NULL_PROGRESSABLE;

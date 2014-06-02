@@ -30,6 +30,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.DFSClient;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.raid.protocol.PolicyInfo;
 import org.apache.hadoop.util.StringUtils;
 
@@ -236,7 +237,7 @@ public class Statistics implements Serializable {
    */
   public long getSaving(Configuration conf) {
     try {
-      DFSClient dfs = ((DistributedFileSystem)FileSystem.get(conf)).getClient();
+      DFSClient dfs = (DFSUtil.convertToDFS(FileSystem.get(conf))).getClient();
       Counters raidedCounters = stateToSourceCounters.get(RaidState.RAIDED);
       long physical = raidedCounters.getNumBytes() +
           parityCounters.getNumBytes();
@@ -253,7 +254,7 @@ public class Statistics implements Serializable {
    */
   public long getDoneSaving(Configuration conf) {
     try {
-      DFSClient dfs = ((DistributedFileSystem)FileSystem.get(conf)).getClient();
+      DFSClient dfs = (DFSUtil.convertToDFS(FileSystem.get(conf))).getClient();
       Counters raidedCounters = stateToSourceCounters.get(RaidState.RAIDED);
       Counters shouldRaidCounters =
           stateToSourceCounters.get(RaidState.NOT_RAIDED_BUT_SHOULD);

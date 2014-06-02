@@ -35,6 +35,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DFSClient;
 import org.apache.hadoop.raid.Statistics.Counters;
@@ -265,7 +266,7 @@ public class StatisticsCollector implements Runnable {
     DFSClient dfs;
     double totalPhysical;
     try {
-      dfs = ((DistributedFileSystem)FileSystem.get(conf)).getClient();
+      dfs = DFSUtil.convertToDFS(FileSystem.get(conf)).getClient();
       totalPhysical = dfs.getNSDiskStatus().getDfsUsed();
     } catch (IOException e) {
       return -1;

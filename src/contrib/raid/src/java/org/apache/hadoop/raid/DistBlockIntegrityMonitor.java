@@ -66,6 +66,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.tools.DFSck;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
@@ -1171,6 +1172,7 @@ public class DistBlockIntegrityMonitor extends BlockIntegrityMonitor {
     }
     Codec codec = raidInfo.codec;
     
+    fs = DFSUtil.convertToDFS(fs);
     if (codec.isDirRaid) {
       RaidUtils.collectDirectoryCorruptBlocksInStripe(conf, 
           (DistributedFileSystem)fs, raidInfo, 
@@ -1517,7 +1519,7 @@ public class DistBlockIntegrityMonitor extends BlockIntegrityMonitor {
           FileSystem newFs, long newDetectTime, CorruptionWorker newWorker) {
         corruptFile = newCorruptFile;
         monitorSet = newMonitorSet;
-        fs = newFs;
+        fs = DFSUtil.convertToDFS(newFs);
         detectTime = newDetectTime;
         worker = newWorker;
       }

@@ -9,6 +9,7 @@
   import="org.apache.hadoop.util.*"
   import="org.apache.hadoop.hdfs.*"
   import="org.apache.hadoop.hdfs.DistributedFileSystem.*"
+  import="org.apache.hadoop.hdfs.DistributedRaidFileSystem.*"
   import="org.apache.hadoop.fs.FileSystem"
   import="org.apache.hadoop.raid.DistBlockIntegrityMonitor.CorruptFileCounter"
   import="java.lang.Integer"
@@ -21,7 +22,9 @@
   PurgeMonitor purge = raidNode.getPurgeMonitor();
   CorruptFileCounter counter = raidNode.getCorruptFileCounter();
   PlacementMonitor place = raidNode.getPlacementMonitor();
-  DiskStatus ds = ((DistributedFileSystem)FileSystem.get(raidNode.getConf()))
+  // with RiadNode webapp, it must be a DRFS
+  DistributedRaidFileSystem drfs = (DistributedRaidFileSystem)FileSystem.get(raidNode.getConf());
+  DiskStatus ds = ((DistributedFileSystem)drfs.getFileSystem())
                      .getClient().getNSDiskStatus();
   String name = raidNode.getHostName();
   name = name.substring(0, name.indexOf(".")).toUpperCase();

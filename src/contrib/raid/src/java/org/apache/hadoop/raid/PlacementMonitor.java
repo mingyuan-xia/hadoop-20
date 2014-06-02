@@ -42,6 +42,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.hdfs.DFSClient;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.hdfs.DistributedRaidFileSystem;
+import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.LocatedBlock;
 import org.apache.hadoop.hdfs.protocol.LocatedBlocks;
@@ -851,6 +853,9 @@ public class PlacementMonitor {
 
     private VersionedLocatedBlocks getLocatedBlocks(Path file, FileSystem fs)
         throws IOException {
+      if (fs instanceof DistributedRaidFileSystem) {
+        fs = DFSUtil.convertToDFS(fs);
+      }
       if (!(fs instanceof DistributedFileSystem)) {
         throw new IOException("Cannot obtain " + LocatedBlocks.class +
             " from " + fs.getClass().getSimpleName());

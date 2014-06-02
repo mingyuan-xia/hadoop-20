@@ -69,6 +69,7 @@ import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.RemoteIterator;
 
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.DistributedRaidFileSystem;
 import org.apache.hadoop.hdfs.DFSUtil;
 
@@ -804,7 +805,7 @@ public class RaidShell extends Configured implements Tool {
       LOG.info("RaidShell recoverFile for " + path + " corruptOffset " + corruptOffset);
       Path recovered = new Path("/tmp/recovered." + System.currentTimeMillis());
       FileSystem fs = recovered.getFileSystem(conf);
-      DistributedFileSystem dfs = (DistributedFileSystem)fs;
+      DistributedFileSystem dfs = DFSUtil.convertToDFS(fs);
       Configuration raidConf = new Configuration(conf);
       raidConf.set("fs.hdfs.impl",
                      "org.apache.hadoop.hdfs.DistributedRaidFileSystem");
