@@ -130,7 +130,6 @@ fi
 # CLASSPATH initially contains $HADOOP_CONF_DIR
 JMX_OPTS=""
 CLASSPATH="${HADOOP_CONF_DIR}"
-CLASSPATH=${CLASSPATH}:$HADOOP_CLASSPATH
 CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
 
 # for developers, add Hadoop classes to CLASSPATH
@@ -343,7 +342,7 @@ elif [ "$COMMAND" = "secondarynamenode" ] ; then
   HADOOP_OPTS="$HADOOP_OPTS $HADOOP_GC_LOG_OPTS $HADOOP_SECONDARYNAMENODE_OPTS"
 elif [ "$COMMAND" = "raidnode" ] ; then
   CLASS='org.apache.hadoop.raid.RaidNode'
-  JMX_OPTS=$HADOOP_JMX_RAIDNODE_OPTS
+  JMX_OPTS="$HADOOP_JMX_RAIDNODE_OPTS -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,address=8999"
   HADOOP_OPTS="$HADOOP_OPTS $HADOOP_GC_LOG_OPTS"
   CLASSPATH=${CORONA_LIB_PATH}:${CLASSPATH}
 elif [ "$COMMAND" = "notifier" ] ; then
@@ -609,5 +608,6 @@ fi
 
 # run it
 export CLASSPATH
+CLASSPATH=${CLASSPATH}:$HADOOP_CLASSPATH
 export JVM_PID=$$
 exec "$JAVA" $JAVA_HEAP_MAX $HADOOP_OPTS $JMX_OPTS "-Dfb_hadoop_version=0.20" $CLASS $CMDLINE_OPTS "$@"

@@ -103,6 +103,7 @@ public class ParityFilePair {
     // parity file and returning the parity file could result in error while
     // reading it.
     Path outPath =  RaidNode.getOriginalParityFile(destPathPrefix, srcPath);
+    RaidNode.LOG.info("checking parity file for " + outPath.toString());
     if (!codec.isDirRaid && !skipHarChecking) {
       Path outDir = RaidNode.getOriginalParityFile(destPathPrefix, srcParent);
       String harDirName = srcParent.getName() + RaidNode.HAR_SUFFIX;
@@ -125,9 +126,13 @@ public class ParityFilePair {
     //CASE 2: CHECK PARITY
     try {
       FileStatus outHar = fsDest.getFileStatus(outPath);
+      RaidNode.LOG.info("cp3: " + (fsDest == fsSrc));
       ParityFilePair pfp = verifyParity(srcStat, outHar, codec, conf, fsDest);
       if (pfp != null) {
+        RaidNode.LOG.info("parity check suceeded");
         return pfp;
+      } else {
+        RaidNode.LOG.info("parity check failed");
       }
     } catch (java.io.FileNotFoundException e) {
     }
@@ -143,6 +148,7 @@ public class ParityFilePair {
     if (parity.getModificationTime() != src.getModificationTime()) {
       return null;
     }
+    RaidNode.LOG.info("parity file has the same mtime with the original file");
     int stripeLength = codec.stripeLength;
     int parityLegnth = codec.parityLength;
     long expectedSize = 0;

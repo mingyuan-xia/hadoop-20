@@ -40,6 +40,7 @@ import org.apache.hadoop.raid.LogUtils.LOGRESULTS;
 import org.apache.hadoop.raid.LogUtils.LOGTYPES;
 import org.apache.hadoop.raid.RaidUtils.RaidInfo;
 import org.apache.hadoop.raid.protocol.PolicyInfo;
+import org.apache.hadoop.raid.RaidNode;
 
 /**
  * Periodically delete orphaned parity files.
@@ -183,6 +184,7 @@ public class PurgeMonitor implements Runnable {
     if (stat == null) return;
 
     LOG.info("Purging obsolete parity files for " + parityPath);
+    RaidNode.LOG.info("cp1: " + (srcFs == parityFs));
     DirectoryTraversal obsoleteParityFileRetriever =
       new DirectoryTraversal(
         "Purge File ",
@@ -355,6 +357,7 @@ public class PurgeMonitor implements Runnable {
       } catch (FileNotFoundException e) {
         // No such src file, delete the parity file.
         shouldDelete = true;
+        RaidNode.LOG.info("no such src file, delete the parity");
       }
       
       // check the src files of the directory-raid parity
@@ -365,6 +368,7 @@ public class PurgeMonitor implements Runnable {
       if (!shouldDelete) {
         try {
           if (existsBetterParityFile(codec, srcStat, conf)) {
+            RaidNode.LOG.info("existsBetterParityFile, delete the parity");
             shouldDelete = true;
           }
           
@@ -380,9 +384,11 @@ public class PurgeMonitor implements Runnable {
             
             ParityFilePair ppair =
                 ParityFilePair.getParityFile(codec, srcStat, conf);
+            RaidNode.LOG.info(" cp2:" + (ppair.getFileSystem() == parityFs));
             if ( ppair == null ||
-                 !parityFs.equals(ppair.getFileSystem()) ||
+                 // !parityFs.equals(ppair.getFileSystem()) ||
                  !pathStr.equals(ppair.getPath().toUri().getPath())) {
+              RaidNode.LOG.info("some path matching failed, delete the parity");
               shouldDelete = true;
             } else {
               // This parity file matches the source file.

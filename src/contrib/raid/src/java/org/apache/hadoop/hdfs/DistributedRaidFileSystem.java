@@ -113,6 +113,17 @@ public class DistributedRaidFileSystem extends FilterFileSystem {
     super.initialize(name, conf);
   }
 
+  @Override
+  public boolean equals(Object that) {
+   if (that instanceof DistributedRaidFileSystem) {
+     DistributedRaidFileSystem thatFS  = (DistributedRaidFileSystem)that;
+     return this.fs == thatFS.fs;
+   } else {
+     LOG.warn("DistributedRaidFileSystem compares with non-DRFS: " + that.getClass().toString());
+     return false;
+   }
+  }
+
   /*
    * Returns the underlying filesystem
    */
