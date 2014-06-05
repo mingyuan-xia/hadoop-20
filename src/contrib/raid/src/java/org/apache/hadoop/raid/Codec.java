@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -119,6 +120,16 @@ public class Codec implements Serializable {
   public final int priority;
 
   /**
+   * The Encoder class
+   */
+  public Class<? extends Encoder> encoderClass;
+  
+  /**
+   * The Decoder class
+   */
+  public Class<? extends Decoder> decoderClass;
+  
+  /**
    * Is file-level raiding or directory-level raiding
    */
   public boolean isDirRaid;
@@ -186,7 +197,8 @@ public class Codec implements Serializable {
     }
   }
 
-  private Codec(JSONObject json) throws JSONException {
+  @SuppressWarnings("unchecked")
+private Codec(JSONObject json) throws JSONException {
     this.jsonStr = json.toString();
     this.id = json.getString("id");
     this.parityLength = json.getInt("parity_length");
@@ -200,7 +212,22 @@ public class Codec implements Serializable {
         json, "tmp_parity_dir", "/tmp" + this.parityDirectory);
     this.tmpHarDirectory = getJSONString(
         json, "tmp_har_dir", "/tmp" + this.parityDirectory + "_har");
-    this.simulateBlockFix = json.getBoolean("simulate_block_fix"); 
+    this.simulateBlockFix = json.getBoolean("simulate_block_fix");
+    // To keep compatible with old configuration files
+    final String hardCodedDefaultEncoder = id == "xor" ?
+    		"org.apache.hadoop.raid.XOREncoder" : "org.apache.hadoop.raid.ReedSolomonEncoder";
+    final String hardCodedDefaultDecoder = id == "xor" ?
+    		"org.apache.hadoop.raid.XORDecoder" : "org.apache.hadoop.raid.ReedSolomonDecoder";
+    
+    try {
+        this.encoderClass = (Class<? extends Encoder>) Class.forName(
+        		getJSONString(json, "encoder", hardCodedDefaultEncoder));
+		this.decoderClass = (Class<? extends Decoder>) Class.forName(
+				getJSONString(json, "decoder", hardCodedDefaultDecoder));
+	} catch (ClassNotFoundException e) {
+		LOG.error("Failed to understand the encoder or decoder of the codec: " + id);
+	}
+    
     checkDirectory(parityDirectory);
     checkDirectory(tmpParityDirectory);
     checkDirectory(tmpHarDirectory);

@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +33,6 @@ import java.util.zip.CRC32;
 
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.net.NetUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -379,8 +379,7 @@ public class Decoder {
         throw new IOException("Couldn't reconstruct the partial data because " 
             + "old decoders don't support it");
       }
-      Decoder decoder = (oldId.equals("xor"))? new XORDecoder(conf):
-                                               new ReedSolomonDecoder(conf);
+      Decoder decoder = Decoder.constructDecoder(oldId, conf);
       CRC32 newCRC = null;
       long newLen = 0;
       if (!skipVerify) {
@@ -1074,6 +1073,16 @@ public class Decoder {
       super.close();
     }
   }  
+  static Decoder constructDecoder(String id, Configuration conf) {
+	  try {
+		  Constructor<? extends Decoder> ctor = Codec.getCodec(id).decoderClass
+				  .getDeclaredConstructor(new Class<?>[] {Configuration.class});
+		  return ctor.newInstance(new Object[]{conf}); 
+	  } catch (Exception e) {
+		  LOG.warn("Failed to construct codec: " + e.toString());
+		  return null;		  
+	  }
+  }
 }
 
 
